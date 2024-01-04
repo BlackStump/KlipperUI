@@ -22,6 +22,12 @@ install_packages() {
     # ARM chip installation and building
     PKGLIST+=" stm32flash libnewlib-arm-none-eabi"
     PKGLIST+=" gcc-arm-none-eabi binutils-arm-none-eabi libusb-1.0 pkg-config"
+
+    report_status "Running apt-get update..."
+    sudo apt-get update
+
+    report_status "Installing packages..."
+    sudo apt-get install --yes ${PKGLIST}
 }
 
 # Step 2: Clone Klipper
