@@ -26,7 +26,7 @@ This script will now present a menu.
          
 klipper-mcu service will not work until klipper linux mcu is flashed!
 
-There will be a menu choice of Fluidd or Mainsail if no choice is made it will default to Fluidd, UI install includes Moonraker.
+There will be a menu choice of Fluidd or Mainsail if no choice is made it will default to Fluidd, UI install includes Moonraker and Nginx.
 
 Then continue to setup Klipper for the mcu that you have per klipper instructions [here](https://www.klipper3d.org/Installation.html#obtain-a-klipper-configuration-file)
 
