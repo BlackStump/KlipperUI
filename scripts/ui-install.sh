@@ -191,6 +191,12 @@ restart_nginx() {
     sudo systemctl restart nginx
 }
 
+# restart moonraker
+restart_moonraker() {
+    report_status "restarting moonraker..."
+    sudo systemctl restart moonraker
+}
+
 # Helper functions
 report_status() {
     printf "\n\n###### %s\n" "$1"
@@ -210,4 +216,5 @@ ui_install(){
     add_moon
     restart_nginx
     start_klipper
+    restart_moonraker
 }
