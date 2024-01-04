@@ -1,6 +1,6 @@
 #!/bin/bash
 
-MENU_SCRIPTS="$HOME/KlipperUI-install/scripts"
+MENU_SCRIPTS="$HOME/KlipperUI/scripts"
 
 # Source the scripts
 source ${MENU_SCRIPTS}/klipper-install.sh
@@ -13,7 +13,7 @@ source ${MENU_SCRIPTS}/klipper-linux-mcu.sh
 install_klipper_and_ui() {
     klipper_install
     install_moonraker
-    nginx_install
+    check_nginx
     ui_install
     start_klipper
 }
@@ -36,7 +36,7 @@ main_menu() {
                 install_klipper_and_ui
                 ;;
             3)
-                install_klipper_mcu
+                install_klipper-mcu_service
                 ;;
             4)
                 echo "Exiting script."
