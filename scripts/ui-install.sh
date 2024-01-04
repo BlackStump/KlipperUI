@@ -36,7 +36,7 @@ select_ui() {
 }
 
 # Install ui system packages
-install_packages() {
+install_packages_ui() {
     PKGLIST="wget gzip tar unzip dfu-util"
 
     report_status "Running apt-get update..."
@@ -54,14 +54,14 @@ install_ui() {
     case $CHOICE in
         1)
             stop_klipper
-            install_packages
+            install_packages_ui
             install_fluidd
             install_nginxcfg_fluidd
             remove_default
             ;;
         2)
             stop_klipper
-            install_packages
+            install_packages_ui
             install_mainsail
             install_nginxcfg_mainsail
             remove_default
