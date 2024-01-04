@@ -14,25 +14,24 @@ NGINXVARS="/etc/nginx/conf.d/"
 FLUIDD_URL="https://github.com/fluidd-core/fluidd/releases/latest/download/fluidd.zip"
 MAINSAIL_URL="https://github.com/mainsail-crew/mainsail/releases/latest/download/mainsail.zip"
 
-
 # Function to display menu and get user selection
 select_ui() {
     local valid_choices=("1" "2")
+    local timeout=15
 
-    while true; do
-        report_status "Select UI:"
-        echo "1. Fluidd"
-        echo "2. Mainsail"
-        read -t 15 -p "Enter choice (1 or 2, Enter for Fluidd): " CHOICE
+    report_status "Select UI:"
+    echo "1. Fluidd"
+    echo "2. Mainsail"
 
-        CHOICE=${CHOICE:-1}
+    # Read user input with timeout
+    IFS= read -r -t "$timeout" -p "Enter choice (1 or 2, Enter for Fluidd): " CHOICE || true
 
-        if [[ "${valid_choices[@]}" =~ "${CHOICE}" ]]; then
-            break
-        else
-            echo "Invalid choice. Please enter 1 or 2."
-        fi
-    done
+    CHOICE=${CHOICE:-1}
+
+    if [[ ! "${valid_choices[@]}" =~ "${CHOICE}" ]]; then
+        report_status "Invalid choice or timeout. Defaulting to Fluidd."
+        CHOICE=1
+    fi
 }
 
 # Install ui system packages
