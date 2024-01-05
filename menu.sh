@@ -15,7 +15,13 @@ install_klipper_and_ui() {
     install_moonraker
     check_nginx
     ui_install
-    start_klipper
+}
+
+# Function to change UI
+change_ui() {
+    install_moonraker
+    check_nginx
+    ui_install
 }
 
 # Function for the main menu
@@ -25,8 +31,9 @@ main_menu() {
         echo "1. Install Klipper"
         echo "2. Install Both Klipper and UI (Fluidd/Mainsail)"
         echo "3. Install Klipper Linux MCU"
-        echo "4. Exit"
-        read -p "Enter your choice (1-4): " main_choice
+        echo "4. Change UI (Fluidd/Mainsail)"
+        echo "5. Exit"
+        read -p "Enter your choice (1-5): " main_choice
 
         case $main_choice in
             1)
@@ -39,6 +46,9 @@ main_menu() {
                 install_klipper-mcu_service
                 ;;
             4)
+                change_ui
+                ;;
+            5)
                 echo "Exiting script."
                 exit 0
                 ;;
