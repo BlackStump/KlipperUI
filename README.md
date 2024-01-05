@@ -23,6 +23,7 @@ This script will now present a menu.
          "1. Install Klipper"
          "2. Install Both Klipper and UI (Fluidd/Mainsail)"
          "3. Install Klipper Linux MCU"
+         "4. Change UI (Fluidd/Mainsail)"
          
 klipper-mcu service will not work until klipper linux mcu is flashed!
 
