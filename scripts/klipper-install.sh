@@ -72,8 +72,6 @@ make_dir() {
     fi
 
     mkdir -p ${PRINTER_DATA}/{config,logs,gcodes,systemd,comms,backup,certs}
-    touch ${PRINTER_DATA}/config/printer.cfg
-
     report_status "Directories created."
 }
 
