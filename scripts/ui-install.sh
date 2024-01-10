@@ -13,6 +13,8 @@ NGINXEN="/etc/nginx/sites-enabled"
 NGINXVARS="/etc/nginx/conf.d/"
 FLUIDD_URL="https://github.com/fluidd-core/fluidd/releases/latest/download/fluidd.zip"
 MAINSAIL_URL="https://github.com/mainsail-crew/mainsail/releases/latest/download/mainsail.zip"
+FLUIDDCFG_URL="https://github.com/fluidd-core/fluidd-config.git"
+MAINSAILCFG_URL="https://github.com/mainsail-crew/mainsail-config.git"
 
 # Function to display menu and get user selection
 select_ui() {
@@ -75,11 +77,25 @@ install_ui() {
 # Option to Install Fluidd
 install_fluidd() {
     FILE=~/fluidd
+    FILEFCFG=~/fluidd-config
+    FILEM=~/mainsail-config
     if [ ! -d "$FILE" ]; then
         mkdir ~/fluidd
         cd ~/fluidd
         wget -q -O fluidd.zip ${FLUIDD_URL} && unzip fluidd.zip && rm fluidd.zip
         cd ~/
+    fi
+
+    if [ -e "$FILEM" ]; then
+        unlink ~/printer_data/config/mainsail.cfg
+        unlink ~/printer_data/config/mainsail-moonraker-update.conf
+        sudo rm -r mainsail mainsail-config
+    fi
+
+    if [ ! -d "$FILEFCFG" ]; then
+        git clone ${FLUIDDCFG_URL}
+        ln -sf ~/fluidd-config/fluidd.cfg ~/printer_data/config/fluidd.cfg
+        ln -sf ~/fluidd-config/fluidd-moonraker-update.conf ~/printer_data/config/fluidd-moonraker-update.conf
     else
         report_status "$FILE already exists. Skipping Fluidd installation."
     fi
@@ -88,11 +104,25 @@ install_fluidd() {
 # Option to install mainsail
 install_mainsail() {
     FILE=~/mainsail
+    FILEMCFG=~/mainsail-config
+    FILEF=~/fluidd-config
     if [ ! -d "$FILE" ]; then
         mkdir ~/mainsail
         cd ~/mainsail
         wget -q -O mainsail.zip ${MAINSAIL_URL} && unzip mainsail.zip && rm mainsail.zip
         cd ~/
+    fi
+
+    if [ -e "$FILEF" ]; then
+        unlink ~/printer_data/config/fluidd.cfg
+        unlink ~/printer_data/config/fluidd-moonraker-update.conf
+        sudo rm -r fluidd fluidd-config
+    fi
+
+    if [ ! -d "$FILEMCFG" ]; then
+        git clone ${MAINSAILCFG_URL}
+        ln -sf ~/mainsail-config/mainsail.cfg ~/printer_data/config/mainsail.cfg
+        ln -sf ~/mainsail-config/mainsail-moonraker-update.conf ~/printer_data/config/mainsail-moonraker-update.conf
     else
         report_status "$FILE already exists. Skipping Mainsail installation."
     fi
