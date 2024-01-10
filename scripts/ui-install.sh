@@ -128,6 +128,27 @@ install_mainsail() {
     fi
 }
 
+# Function to remove a line from a file if it exists
+remove_line_if_exists() {
+    pattern="$1"
+    file="$2"
+
+    # Check if the pattern exists in the file
+    if grep -qF "$pattern" "$file"; then
+        # Use temporary file to preserve original contents
+        tmpfile=$(mktemp)
+        grep -vF "$pattern" "$file" > "$tmpfile"
+        mv "$tmpfile" "$file"
+    fi
+}
+
+# Function to add a line to the top of a file if it doesn't exist
+add_line_to_top_if_not_exists() {
+    if ! grep -qF "$1" "$2"; then
+        sed -i "1s/^/$1\n/" "$2"
+    fi
+}
+
 # Add Moonraker config
 add_moon() {
     report_status "Add Moonraker config..."
@@ -135,18 +156,39 @@ add_moon() {
     # Choose the appropriate moonraker.conf based on user choice
     if [ "$CHOICE" == "1" ]; then
         SOURCE_CONF_FILE="${KLIPPERUI}/moonraker_fluidd.conf"
+        INCLUDE_LINE="[include fluidd.cfg]"
+        OPPOSITE_LINE="[include mainsail.cfg]"
     elif [ "$CHOICE" == "2" ]; then
         SOURCE_CONF_FILE="${KLIPPERUI}/moonraker_mainsail.conf"
+        INCLUDE_LINE="[include mainsail.cfg]"
+        OPPOSITE_LINE="[include fluidd.cfg]"
     else
         report_status "Invalid choice. Exiting."
         exit 1
     fi
 
+    # Backup printer.cfg
+    if [ -f "${PRINTER_DATA}/config/printer.cfg" ]; then
+        cp "${PRINTER_DATA}/config/printer.cfg" "${PRINTER_DATA}/config/printer.cfg.bak"
+    fi
+
     # Copy the chosen config file to moonraker.conf
     cp "$SOURCE_CONF_FILE" "${PRINTER_DATA}/config/moonraker.conf"
 
+    # Modify printer.cfg
+    if [ -f "${PRINTER_DATA}/config/printer.cfg.bak" ]; then
+        cp "${PRINTER_DATA}/config/printer.cfg.bak" "${PRINTER_DATA}/config/printer.cfg"
+
+        # Remove opposite include line
+        remove_line_if_exists "$OPPOSITE_LINE" "${PRINTER_DATA}/config/printer.cfg"
+
+        # Add new include line
+        add_line_to_top_if_not_exists "$INCLUDE_LINE" "${PRINTER_DATA}/config/printer.cfg"
+    fi
+
     report_status "Moonraker config for choice $CHOICE added."
 }
+
 
 # Install Nginx config for Fluidd
 install_nginxcfg_fluidd() {
