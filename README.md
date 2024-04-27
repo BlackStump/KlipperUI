@@ -14,6 +14,7 @@ sudo reboot now
 ````
 commands to use script
 ````python
+sudo apt install git
 git clone https://github.com/BlackStump/KlipperUI.git
 cd ~/
 ./KlipperUI/menu.sh
