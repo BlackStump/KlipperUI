@@ -51,7 +51,7 @@ main_menu() {
                 change_ui
                 ;;
             5)
-                can-install.sh
+                can-install
                 ;;
             6)
                 echo "Exiting script."
