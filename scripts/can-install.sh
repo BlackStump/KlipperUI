@@ -1,17 +1,11 @@
 #!/bin/bash
-# This script installs Klipper on Debian
-# Install Klipper-mcu startup script
+# This script installs CAN on Debian
+# Install CAN Service
 # Constants
 SYSTEMDDIR="/etc/systemd/system"
 
 install_can_service() {
-    echo "Installing CAN system start script..."
-
-    # Check if the Klipper service file already exists
-    if [ -e "$SYSTEMDDIR/network-online.target.wants/systemd-networkd-wait-online.service" ]; then
-        echo "Networkd service already installed. Skipping installation."
-        return
-    fi
+    echo "Installing CAN system start script..."    
     sudo systemctl enable systemd-networkd
     sudo systemctl start systemd-networkd
     sudo systemctl disable systemd-networkd-wait-online.service
