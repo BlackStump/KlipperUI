@@ -35,7 +35,7 @@ main_menu() {
         echo "4. Change UI (Fluidd/Mainsail)"
         echo "5. Install CAN (Networkd)"
         echo "6. Exit"
-        read -p "Enter your choice (1-5): " main_choice
+        read -p "Enter your choice (1-6): " main_choice
 
         case $main_choice in
             1)
