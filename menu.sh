@@ -8,6 +8,7 @@ source ${MENU_SCRIPTS}/moonraker-install.sh
 source ${MENU_SCRIPTS}/nginx-install.sh
 source ${MENU_SCRIPTS}/ui-install.sh
 source ${MENU_SCRIPTS}/klipper-linux-mcu.sh
+source ${MENU_SCRIPTS}/can-install.sh
 
 # Function to install both Klipper and UI
 install_klipper_and_ui() {
@@ -32,7 +33,8 @@ main_menu() {
         echo "2. Install Both Klipper and UI (Fluidd/Mainsail)"
         echo "3. Install Klipper Linux MCU"
         echo "4. Change UI (Fluidd/Mainsail)"
-        echo "5. Exit"
+        echo "5. Install CAN (Networkd)"
+        echo "6. Exit"
         read -p "Enter your choice (1-5): " main_choice
 
         case $main_choice in
@@ -49,6 +51,9 @@ main_menu() {
                 change_ui
                 ;;
             5)
+                install-can.sh
+                ;;
+            6)
                 echo "Exiting script."
                 exit 0
                 ;;
