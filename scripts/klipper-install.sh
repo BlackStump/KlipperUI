@@ -22,6 +22,7 @@ install_packages() {
     # ARM chip installation and building
     PKGLIST+=" stm32flash libnewlib-arm-none-eabi"
     PKGLIST+=" gcc-arm-none-eabi binutils-arm-none-eabi libusb-1.0 pkg-config"
+    PKGLIST+=" python3-numpy python3-matplotlib libatlas-base-dev libopenblas-dev"
 
     report_status "Running apt-get update..."
     sudo apt-get update
