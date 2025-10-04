@@ -8,7 +8,7 @@ install_can_service() {
     echo "Installing CAN system start script..."
 
     # Check if the Klipper service file already exists
-    if [ -e "$SYSTEMDDIR/systemd-networkd.service" ]; then
+    if [ -e "$SYSTEMDDIR/network-online.target.wants/systemd-networkd-wait-online.service" ]; then
         echo "Networkd service already installed. Skipping installation."
         return
     fi
