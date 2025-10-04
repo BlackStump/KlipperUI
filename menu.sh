@@ -51,7 +51,7 @@ main_menu() {
                 change_ui
                 ;;
             5)
-                can_install
+                install_can_service
                 ;;
             6)
                 echo "Exiting script."
