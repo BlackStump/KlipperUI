@@ -19,4 +19,4 @@ install_can_service() {
     echo -e "[Match]\nName=can*\n\n[CAN]\nBitRate=1M\n\n[Link]\nRequiredForOnline=no" | sudo tee /etc/systemd/network/25-can.network > /dev/null
 }
 
-install_can_service
+
