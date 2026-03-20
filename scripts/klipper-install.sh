@@ -175,4 +175,3 @@ klipper_install() {
     start_software
 }
 
-klipper_install
