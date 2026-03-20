@@ -16,9 +16,8 @@ install_klipper-mcu_service() {
         echo "Klipper service already installed. Skipping installation."
         return
     fi
-    sudo /bin/sh -c "cp $KLIPPER_MCU_SERVICE $SYSTEMDDIR/klipper-mcu.service"
-    sudo sed -i 's#Environment=KLIPPER_HOST_MCU_SERIAL=/tmp/klipper_host_mcu#Environment=KLIPPER_HOST_MCU_SERIAL=/home/pi/printer_data/comms/host-mcu.serial#' $SYSTEMDDIR/klipper-mcu.service
-    sudo sed -i "s#Environment=KLIPPER_HOST_MCU_SERIAL=/home/pi/printer_data/comms/host-mcu.serial#Environment=KLIPPER_HOST_MCU_SERIAL=/home/${KLIPPER_USER}/printer_data/comms/host-mcu.serial#" $SYSTEMDDIR/klipper-mcu.service
+
+    sudo cp "$KLIPPER_MCU_SERVICE" "$SYSTEMDDIR/klipper-mcu.service"
     sudo systemctl enable klipper-mcu.service
     sudo systemctl daemon-reload
     sudo systemctl start klipper-mcu
