@@ -11,7 +11,6 @@ verify_ready() {
         report_status "This script must not run as root"
         exit 1
     fi
-
     # Check sudo access upfront
     if ! sudo -v &> /dev/null; then
         report_status "This script requires sudo privileges. Please run as a user with sudo access."
@@ -20,9 +19,8 @@ verify_ready() {
 }
 
 check_nginx() {
-    if ! command -v nginx &> /dev/null; then
+    if ! command -v nginx &> /dev/null && ! [ -f /usr/sbin/nginx ]; then
         report_status "NGINX is not installed. Attempting to install NGINX..."
-
         if command -v apt-get &> /dev/null; then
             sudo apt-get update
             sudo apt-get install -y nginx
@@ -32,7 +30,6 @@ check_nginx() {
             report_status "Unsupported package manager. Please install NGINX manually and run the script again."
             exit 1
         fi
-
         if ! command -v nginx &> /dev/null && ! [ -f /usr/sbin/nginx ]; then
             report_status "Failed to install NGINX. Please install NGINX manually and run the script again."
             exit 1
@@ -44,5 +41,3 @@ nginx_install() {
     verify_ready
     check_nginx
 }
-
-
