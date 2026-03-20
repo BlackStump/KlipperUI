@@ -26,3 +26,6 @@ install_klipper-mcu_service() {
     sudo systemctl daemon-reload
     sudo systemctl start klipper-mcu
 }
+install_klipper_mcu_service() {
+    install_klipper-mcu_service
+}
