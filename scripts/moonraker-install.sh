@@ -45,4 +45,3 @@ moonraker_install() {
     install_moonraker
 }
 
-moonraker_install
