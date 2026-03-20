@@ -17,6 +17,10 @@ install_klipper-mcu_service() {
         return
     fi
 
+    # Disable RT scheduling group limit required for klipper-mcu
+    echo "kernel.sched_rt_runtime_us = -1" | sudo tee /etc/sysctl.d/10-disable-rt-group-limit.conf
+    sudo sysctl -p /etc/sysctl.d/10-disable-rt-group-limit.conf
+
     sudo cp "$KLIPPER_MCU_SERVICE" "$SYSTEMDDIR/klipper-mcu.service"
     sudo systemctl enable klipper-mcu.service
     sudo systemctl daemon-reload
