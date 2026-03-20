@@ -16,6 +16,18 @@ MAINSAIL_URL="https://github.com/mainsail-crew/mainsail/releases/latest/download
 FLUIDDCFG_URL="https://github.com/fluidd-core/fluidd-config.git"
 MAINSAILCFG_URL="https://github.com/mainsail-crew/mainsail-config.git"
 
+# Helper functions
+report_status() {
+    printf "\n\n###### %s\n" "$1"
+}
+
+verify_ready() {
+    if [ "$EUID" -eq 0 ]; then
+        report_status "This script must not run as root"
+        exit 1
+    fi
+}
+
 # Function to display menu and get user selection
 select_ui() {
     local valid_choices=("1" "2")
@@ -25,7 +37,6 @@ select_ui() {
     echo "1. Fluidd"
     echo "2. Mainsail"
 
-    # Read user input with timeout
     IFS= read -r -t "$timeout" -p "Enter choice (1 or 2, Enter for Fluidd): " CHOICE || true
 
     CHOICE=${CHOICE:-1}
@@ -47,9 +58,8 @@ install_packages_ui() {
     sudo apt-get install --yes ${PKGLIST}
 }
 
-# Step 9: Install UI (Fluidd or Mainsail)
+# Install UI (Fluidd or Mainsail)
 install_ui() {
-
     select_ui
 
     case $CHOICE in
@@ -79,6 +89,7 @@ install_fluidd() {
     FILE=~/fluidd
     FILEFCFG=~/fluidd-config
     FILEM=~/mainsail-config
+
     if [ ! -d "$FILE" ]; then
         mkdir ~/fluidd
         cd ~/fluidd
@@ -97,15 +108,16 @@ install_fluidd() {
         ln -sf ~/fluidd-config/fluidd.cfg ~/printer_data/config/fluidd.cfg
         ln -sf ~/fluidd-config/fluidd-moonraker-update.conf ~/printer_data/config/fluidd-moonraker-update.conf
     else
-        report_status "$FILE already exists. Skipping Fluidd installation."
+        report_status "$FILEFCFG already exists. Skipping Fluidd config installation."
     fi
 }
 
-# Option to install mainsail
+# Option to install Mainsail
 install_mainsail() {
     FILE=~/mainsail
     FILEMCFG=~/mainsail-config
     FILEF=~/fluidd-config
+
     if [ ! -d "$FILE" ]; then
         mkdir ~/mainsail
         cd ~/mainsail
@@ -124,7 +136,7 @@ install_mainsail() {
         ln -sf ~/mainsail-config/mainsail.cfg ~/printer_data/config/mainsail.cfg
         ln -sf ~/mainsail-config/mainsail-moonraker-update.conf ~/printer_data/config/mainsail-moonraker-update.conf
     else
-        report_status "$FILE already exists. Skipping Mainsail installation."
+        report_status "$FILEMCFG already exists. Skipping Mainsail config installation."
     fi
 }
 
@@ -133,9 +145,7 @@ remove_line_if_exists() {
     pattern="$1"
     file="$2"
 
-    # Check if the pattern exists in the file
     if grep -qF "$pattern" "$file"; then
-        # Use temporary file to preserve original contents
         tmpfile=$(mktemp)
         grep -vF "$pattern" "$file" > "$tmpfile"
         mv "$tmpfile" "$file"
@@ -153,7 +163,6 @@ add_line_to_top_if_not_exists() {
 add_moon() {
     report_status "Add Moonraker config..."
 
-    # Choose the appropriate moonraker.conf based on user choice
     if [ "$CHOICE" == "1" ]; then
         SOURCE_CONF_FILE="${KLIPPERUI}/moonraker_fluidd.conf"
         INCLUDE_LINE="[include fluidd.cfg]"
@@ -167,42 +176,33 @@ add_moon() {
         exit 1
     fi
 
-    # Backup printer.cfg
     if [ -f "${PRINTER_DATA}/config/printer.cfg" ]; then
         cp "${PRINTER_DATA}/config/printer.cfg" "${PRINTER_DATA}/config/printer.cfg.bak"
     fi
 
-    # Copy the chosen config file to moonraker.conf
     cp "$SOURCE_CONF_FILE" "${PRINTER_DATA}/config/moonraker.conf"
 
-    # Modify printer.cfg
     if [ -f "${PRINTER_DATA}/config/printer.cfg.bak" ]; then
         cp "${PRINTER_DATA}/config/printer.cfg.bak" "${PRINTER_DATA}/config/printer.cfg"
-
-        # Remove opposite include line
         remove_line_if_exists "$OPPOSITE_LINE" "${PRINTER_DATA}/config/printer.cfg"
-
-        # Add new include line
         add_line_to_top_if_not_exists "$INCLUDE_LINE" "${PRINTER_DATA}/config/printer.cfg"
     fi
 
     report_status "Moonraker config for choice $CHOICE added."
 }
 
-
 # Install Nginx config for Fluidd
 install_nginxcfg_fluidd() {
-    # Remove existing Mainsail config if it exists
     if [ -e "$NGINXDIR/mainsail" ]; then
         sudo rm "$NGINXDIR/mainsail"
         sudo rm "$NGINXEN/mainsail"
     fi
 
     if [ ! -e "$NGINXDIR/fluidd" ]; then
-        sudo /bin/sh -c "cp ${KLIPPERUI}/fluidd $NGINXDIR/"
+        sudo cp "${KLIPPERUI}/fluidd" "$NGINXDIR/"
         sudo sed -i "s#root /home/pi/fluidd;#root /home/${KLIPPER_USER}/fluidd;#" "$NGINXDIR/fluidd"
-        sudo /bin/sh -c "cp ${KLIPPERUI}/upstreams.conf $NGINXVARS/"
-        sudo /bin/sh -c "cp ${KLIPPERUI}/common_vars.conf $NGINXVARS/"
+        sudo cp "${KLIPPERUI}/upstreams.conf" "$NGINXVARS/"
+        sudo cp "${KLIPPERUI}/common_vars.conf" "$NGINXVARS/"
         sudo ln -s "$NGINXDIR/fluidd" "$NGINXEN"
     else
         report_status "Nginx config file already exists. Skipping installation."
@@ -211,74 +211,58 @@ install_nginxcfg_fluidd() {
 
 # Install Nginx config for Mainsail
 install_nginxcfg_mainsail() {
-    # Remove existing Fluidd config if it exists
     if [ -e "$NGINXDIR/fluidd" ]; then
         sudo rm "$NGINXDIR/fluidd"
         sudo rm "$NGINXEN/fluidd"
     fi
 
     if [ ! -e "$NGINXDIR/mainsail" ]; then
-        sudo /bin/sh -c "cp ${KLIPPERUI}/mainsail $NGINXDIR/"
+        sudo cp "${KLIPPERUI}/mainsail" "$NGINXDIR/"
         sudo sed -i "s#root /home/pi/mainsail;#root /home/$KLIPPER_USER/mainsail;#" "$NGINXDIR/mainsail"
-        sudo /bin/sh -c "cp ${KLIPPERUI}/upstreams.conf $NGINXVARS/"
-        sudo /bin/sh -c "cp ${KLIPPERUI}/common_vars.conf $NGINXVARS/"
+        sudo cp "${KLIPPERUI}/upstreams.conf" "$NGINXVARS/"
+        sudo cp "${KLIPPERUI}/common_vars.conf" "$NGINXVARS/"
         sudo ln -s "$NGINXDIR/mainsail" "$NGINXEN"
     else
         report_status "Nginx config file already exists. Skipping installation."
     fi
 }
 
-# remove NGINX default entry
-remove_default(){
-    # Remove default entries if it exists
-    # Add debug statements
+# Remove NGINX default entry
+remove_default() {
     report_status "Checking if Nginx default file exists..."
 
-    # Remove default entries if it exists
     if [ -e "$NGINXDIR/default" ]; then
-    report_status "Nginx default file found. Removing..."
-    sudo rm "$NGINXDIR/default"
-    sudo rm "$NGINXEN/default"
-    report_status "Nginx default file removed."
-   else
-    report_status "Nginx default file does not exist. Skipping removal."
-   fi
+        report_status "Nginx default file found. Removing..."
+        sudo rm "$NGINXDIR/default"
+        sudo rm "$NGINXEN/default"
+        report_status "Nginx default file removed."
+    else
+        report_status "Nginx default file does not exist. Skipping removal."
+    fi
 }
 
 # stop klipper
 stop_klipper() {
-    report_status "stopping klipper..."
+    report_status "Stopping Klipper..."
     sudo systemctl stop klipper
 }
 
 # start klipper
 start_klipper() {
-    report_status "starting klipper..."
+    report_status "Starting Klipper..."
     sudo systemctl start klipper
 }
 
 # restart nginx
 restart_nginx() {
-    report_status "restarting nginx..."
+    report_status "Restarting Nginx..."
     sudo systemctl restart nginx
 }
 
 # restart moonraker
 restart_moonraker() {
-    report_status "restarting moonraker..."
+    report_status "Restarting Moonraker..."
     sudo systemctl restart moonraker
-}
-
-# Helper functions
-report_status() {
-    printf "\n\n###### %s\n" "$1"
-}
-
-verify_ready() {
-    if [ "$EUID" -eq 0 ]; then
-        report_status "This script must not run as root"
-        exit -1
-    fi
 }
 
 # function ui-install
