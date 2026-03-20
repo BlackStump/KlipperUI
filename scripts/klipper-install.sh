@@ -9,17 +9,24 @@ KLIPPER_USER=$(whoami)
 KLIPPERDIR="$HOME/klipper"
 SRCDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )"/.. && pwd )"
 
+# Helper functions
+report_status() {
+    printf "\n\n###### %s\n" "$1"
+}
+
+verify_ready() {
+    if [ "$EUID" -eq 0 ]; then
+        report_status "This script must not run as root"
+        exit 1
+    fi
+}
+
 # Step 1: Install system packages
 install_packages() {
-    # Packages for python cffi
     PKGLIST="python3-virtualenv python3-dev libffi-dev build-essential"
-    # kconfig requirements
     PKGLIST+=" libncurses-dev"
-    # hub-ctrl
     PKGLIST+=" libusb-dev"
-    # AVR chip installation and building
     PKGLIST+=" avrdude gcc-avr binutils-avr avr-libc"
-    # ARM chip installation and building
     PKGLIST+=" stm32flash libnewlib-arm-none-eabi"
     PKGLIST+=" gcc-arm-none-eabi binutils-arm-none-eabi libusb-1.0 pkg-config"
     PKGLIST+=" python3-numpy python3-matplotlib libopenblas-dev python3-scipy"
@@ -46,15 +53,12 @@ clone_klipper() {
 create_virtualenv() {
     report_status "Updating Python virtual environment..."
 
-    if [ -d "${PYTHONDIR}" ] && [ -f "${PYTHONDIR}/bin/python" ] && \
-       [ -f "${PYTHONDIR}/bin/pip" ] && \
-       ${PYTHONDIR}/bin/pip show -q -f "${KLIPPERDIR}/scripts/klippy-requirements.txt"
-    then
-        report_status "Python virtual environment and requirements are already installed. Skipping."
+    if [ -d "${PYTHONDIR}" ] && [ -f "${PYTHONDIR}/bin/python" ]; then
+        report_status "Python virtual environment already exists. Skipping."
         return
     fi
 
-    [ ! -d ${PYTHONDIR} ] && virtualenv -p python3 ${PYTHONDIR}
+    virtualenv -p python3 ${PYTHONDIR}
     ${PYTHONDIR}/bin/pip install -r ${KLIPPERDIR}/scripts/klippy-requirements.txt
 
     report_status "Python virtual environment and requirements installed."
@@ -91,7 +95,7 @@ ${PRINTER_DATA}/logs/klippy.log -I
 ${PRINTER_DATA}/comms/klippy.serial -a
 ${PRINTER_DATA}/comms/klippy.sock"
 EOF
-# install bare bones printer.cfg if one does not exist
+
     if [ ! -e "${PRINTER_DATA}/config/printer.cfg" ]; then
         /bin/sh -c "cat >> ${PRINTER_DATA}/config/printer.cfg" << EOF
 [mcu]
@@ -120,7 +124,6 @@ EOF
 install_klipper_service() {
     report_status "Installing Klipper system start script..."
 
-    # Check if the Klipper service file already exists
     if [ -e "$SYSTEMDDIR/klipper.service" ]; then
         report_status "Klipper service already installed. Skipping installation."
         return
@@ -140,15 +143,13 @@ WantedBy=multi-user.target
 Type=simple
 User=${KLIPPER_USER}
 RemainAfterExit=yes
-WorkingDirectory=${PYTHONDIR} 
+WorkingDirectory=${PYTHONDIR}
 EnvironmentFile=${PRINTER_DATA}/systemd/klipper.env
 ExecStart=${PYTHONDIR}/bin/python \$KLIPPER_ARGS
 Restart=always
 RestartSec=10
 EOF
 
-    sudo sed -i "s/User=pi/User=${KLIPPER_USER}/" $SYSTEMDDIR/klipper.service
-    sudo sed -i "s/WorkingDirectory=\/home\/pi\/klipper/WorkingDirectory=\/home\/${KLIPPER_USER}\/klipper/" $SYSTEMDDIR/klipper.service
     sudo systemctl enable klipper.service
     sudo systemctl daemon-reload
 }
@@ -159,29 +160,19 @@ start_software() {
     sudo systemctl start klipper
 }
 
-# Helper functions
-report_status() {
-    printf "\n\n###### %s\n" "$1"
-}
-
-verify_ready() {
-    if [ "$EUID" -eq 0 ]; then
-        report_status "This script must not run as root"
-        exit -1
-    fi
-}
-
 # Force script to exit if an error occurs
 set -e
 
-# Run installation steps defined above
+# Run installation steps
 klipper_install() {
-verify_ready
-install_packages
-clone_klipper
-create_virtualenv
-make_dir
-install_args
-install_klipper_service
-start_software
+    verify_ready
+    install_packages
+    clone_klipper
+    create_virtualenv
+    make_dir
+    install_args
+    install_klipper_service
+    start_software
 }
+
+klipper_install
