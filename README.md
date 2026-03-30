@@ -40,7 +40,7 @@ The GUI of choice should be accessable so you can edit the printer.cfg from the 
 printer.cfg entry for klipper-mcu
 ````python
 [mcu host]
-serial: ~/printer_data/comms/host-mcu.serial
+serial: /tmp/klipper_host_mcu
 ````
 ------
 Flashing Linux mcu
