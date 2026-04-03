@@ -8,6 +8,7 @@ source ${MENU_SCRIPTS}/nginx-install.sh
 source ${MENU_SCRIPTS}/ui-install.sh
 source ${MENU_SCRIPTS}/klipper-linux-mcu.sh
 source ${MENU_SCRIPTS}/can-install.sh
+source ${MENU_SCRIPTS}/katapult-install.sh
 
 # Function to install both Klipper and UI
 install_klipper_and_ui() {
@@ -33,8 +34,9 @@ main_menu() {
         echo "3. Install Klipper Linux MCU"
         echo "4. Change UI (Fluidd/Mainsail)"
         echo "5. Install CAN (Networkd)"
-        echo "6. Exit"
-        read -p "Enter your choice (1-6): " main_choice
+        echo "6. Install Katapult"
+        echo "7. Exit"
+        read -p "Enter your choice (1-7): " main_choice
         case $main_choice in
             1)
                 klipper_install
@@ -52,11 +54,14 @@ main_menu() {
                 can_install
                 ;;
             6)
+                katapult_install
+                ;;    
+            7)
                 echo "Exiting script."
                 exit 0
                 ;;
             *)
-                echo "Invalid choice. Please enter a number between 1 and 6."
+                echo "Invalid choice. Please enter a number between 1 and 7."
                 ;;
         esac
         read -p "Do you want to go back to the main menu? (y/n): " continue_choice
