@@ -1,8 +1,6 @@
 #!/bin/bash
 # This script installs Katapult on Debian
 
-# Constants
-
 # Helper functions
 report_status() {
     printf "\n\n###### %s\n" "$1"
@@ -26,15 +24,12 @@ install_katapult() {
         git clone https://github.com/Arksine/katapult.git
         report_status "Katapult installed."
     else
-        # Directory exists — check if service is installed
-    if [ -e "$KATAPULT_DIR" ]; then
-        report_status "Katapult is already exists. Skipping Git Clone."
-        
-    fi
+        # Directory exists — skip clone
+        report_status "Katapult already exists. Skipping Git Clone."
+    fi  # <-- this was missing entirely
 }
 
 katapult_install() {
     verify_ready
     install_katapult
 }
-
