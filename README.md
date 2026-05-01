@@ -2,16 +2,6 @@
 
 USE AT OWN RISK
 
-Tested on Orangepi Zeroplus with Armbian and Beaglebone Black both with Bookworm OS both had this issue [here](https://klipper.discourse.group/t/klipper-mcu-service-fails-to-start/12219)
-
-command to fix issue 
-````python
-sudo echo "kernel.sched_rt_runtime_us = -1" | sudo tee /etc/sysctl.d/10-disable-rt-group-limit.conf
-````
-Now reboot the system
-````python
-sudo reboot now
-````
 commands to use script
 ````python
 sudo apt install git
@@ -73,3 +63,14 @@ sudo systemctl status klipper
 restart klipper
 ````python
 sudo systemctl restart klipper
+~~~~~~~~~~~~~~~~~
+Klipper-mcu-service does not start issue [here](https://klipper.discourse.group/t/klipper-mcu-service-fails-to-start/12219)
+
+command to fix issue is not needed as it is included in the klipper-mcu install script
+````python
+sudo echo "kernel.sched_rt_runtime_us = -1" | sudo tee /etc/sysctl.d/10-disable-rt-group-limit.conf
+````
+Now reboot the system
+````python
+sudo reboot now
+````
