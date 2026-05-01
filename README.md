@@ -63,7 +63,8 @@ sudo systemctl status klipper
 restart klipper
 ````python
 sudo systemctl restart klipper
-~~~~~~~~~~~~~~~~~
+````
+
 Klipper-mcu-service does not start issue [here](https://klipper.discourse.group/t/klipper-mcu-service-fails-to-start/12219)
 
 command to fix issue is not needed as it is included in the klipper-mcu install script
